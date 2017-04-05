@@ -1,3 +1,47 @@
 <resources>
     <string name="app_name">Base</string>
+
+    <!--通用字符串-->
+    <string name="common_confirm">确认</string>
+    <string name="common_post">提交</string>
+    <string name="common_modify">修改</string>
+    <string name="common_finish">完成</string>
+    <string name="common_next">下一步</string>
+    <string name="common_cancel">取消</string>
+    <string name="common_send">发送</string>
+
+    <string name="common_sex_unknown">未知</string>
+    <string name="common_sex_male">男</string>
+    <string name="common_sex_female">女</string>
+
+    <string name="common_login">登录</string>
+    <string name="common_register">注册</string>
+    <string name="common_send_code">获取验证码</string>
+
+    <string name="common_tip_swipe_load_more">上拉加载更多</string>
+    <string name="common_tip_release_load_more">释放加载更多</string>
+    <string name="common_tip_loading_more">正在加载更多...</string>
+    <string name="common_tip_load_more_completed">加载更多完成</string>
+
+    <string name="common_tip_swipe_refresh">下拉刷新</string>
+    <string name="common_tip_release_refresh">释放刷新</string>
+    <string name="common_tip_refreshing">正在刷新...</string>
+    <string name="common_tip_refresh_completed">刷新完成</string>
+
+    <!--hint-->
+    <string name="hint_input_phone">请输入手机号</string>
+    <string name="hint_input_password">请输入密码</string>
+    <string name="hint_input_verify_code">请输入验证码</string>
+    <string name="hint_input_new_password">请输入新密码</string>
+    <string name="hint_input_confirm_new_password">请再次输入新密码</string>
+    <string name="hint_input_set_password">请设置密码,6-20个字符</string>
+    <string name="hint_moment_publish_content">这一刻的想法...</string>
+
+    <!--toast-->
+    <string name="common_load_more_no_result">没有更多数据了</string>
+    <string name="common_retry_request">正在重新加载,请稍后...</string>
+    <string name="common_over_operating">操作太频繁,请稍后尝试</string>
+    <string name="common_tip_copy_finished">已复制到剪贴板上</string>
+    <string name="common_cache_clearing">正在清除缓存,请稍后...</string>
+
 </resources>
