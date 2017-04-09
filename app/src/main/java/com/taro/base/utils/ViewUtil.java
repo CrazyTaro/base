@@ -1,7 +1,9 @@
 package com.taro.base.utils;
 
 import android.app.Service;
+import android.content.Context;
 import android.graphics.drawable.Drawable;
+import android.support.annotation.DrawableRes;
 import android.support.annotation.NonNull;
 import android.text.TextUtils;
 import android.view.Gravity;
@@ -81,6 +83,52 @@ public class ViewUtil {
     public static void showInputMethodPanel(@NonNull View view) {
         InputMethodManager inputMgr = (InputMethodManager) BaseApp.getContext().getSystemService(Service.INPUT_METHOD_SERVICE);
         inputMgr.showSoftInput(view, InputMethodManager.SHOW_FORCED);
+    }
+
+    /**
+     * 设置textview的drawable
+     *
+     * @param tv
+     * @param drawable 需要设置的drawable
+     * @param gravity  drawable设置的位置,对应{@link Gravity}的四个方向
+     */
+    public static void setTextViewDrawable(TextView tv, Drawable drawable, int gravity) {
+        if (tv != null) {
+            Drawable[] draws = tv.getCompoundDrawables();
+            switch (gravity) {
+                case Gravity.LEFT:
+                    draws[0] = drawable;
+                    break;
+                case Gravity.TOP:
+                    draws[1] = drawable;
+                    break;
+                case Gravity.RIGHT:
+                    draws[2] = drawable;
+                    break;
+                case Gravity.BOTTOM:
+                    draws[3] = drawable;
+                    break;
+            }
+            tv.setCompoundDrawables(draws[0], draws[1], draws[2], draws[3]);
+        }
+    }
+
+    /**
+     * 设置textview的drawable
+     *
+     * @param tv
+     * @param res     需要设置的drawable的资源ID
+     * @param gravity drawable设置的位置,对应{@link Gravity}的四个方向
+     */
+    public static void setTextViewDrawable(Context context, TextView tv, @DrawableRes int res, int gravity) {
+        if (context != null && tv != null) {
+            Drawable drawable = null;
+            if (res != 0) {
+                drawable = context.getResources().getDrawable(res);
+                drawable.setBounds(0, 0, drawable.getIntrinsicWidth(), drawable.getIntrinsicHeight());
+            }
+            setTextViewDrawable(tv, drawable, gravity);
+        }
     }
 
 
