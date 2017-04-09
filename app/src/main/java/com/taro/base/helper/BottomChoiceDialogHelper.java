@@ -22,6 +22,7 @@ import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 
@@ -42,8 +43,18 @@ import static android.util.TypedValue.applyDimension;
  */
 
 public class BottomChoiceDialogHelper implements View.OnClickListener {
+    /**
+     * 使用默认设置时正常序列
+     */
     public static final int SETTING_SEQUENCE_ORDER = 0;
+    /**
+     * 使用默认设置时反序列
+     */
     public static final int SETTING_SEQUENCE_REVERSE = 1;
+    /**
+     * 使用默认设置时取消文本控件的ID
+     */
+    public static final int DEFAULT_CANCEL_TEXT_ID = android.support.v7.appcompat.R.id.cancel_action;
 
     @Retention(RetentionPolicy.SOURCE)
     @IntDef(value = {SETTING_SEQUENCE_ORDER, SETTING_SEQUENCE_REVERSE})
@@ -84,42 +95,13 @@ public class BottomChoiceDialogHelper implements View.OnClickListener {
 
     private DefaultItemDecoration mDefaultDecoration = null;
 
-
-    @Override
-    public void onClick(View v) {
-        //取消按钮
-        if (v.getId() == R.id.tv_layout_bottom_choice_cancel) {
-            if (mCancelListener != null) {
-                if (mCancelListener.onCancelClick(this, v)) {
-                    this.dismiss();
-                }
-            } else {
-                this.dismiss();
-            }
-        } else {
-            if (mItemChosenListener != null) {
-                //item项目点击事件
-                RecyclerView.ViewHolder viewHolder = mRvContent.getChildViewHolder(v);
-                int position = mRvContent.getChildAdapterPosition(v);
-                Object data = mAdapter.getItem(position);
-                if (mItemChosenListener.onBottomItemChosen(this, v, viewHolder, position, data)) {
-                    this.dismiss();
-                }
-            }
-        }
-    }
-
     public BottomChoiceDialogHelper(Activity context) {
         mAct = context;
+
         mDialog = new FixedBottomSheetDialog(context);
-        mDialog.setContentView(R.layout.layout_bottom_choice);
+        mDialog.setContentView(createContentView(context));
         mDialog.setCanceledOnTouchOutside(true);
         mDialog.setCancelable(true);
-
-        mContentView = mDialog.getContentView();
-        mTvCancel = (TextView) mContentView.findViewById(R.id.tv_layout_bottom_choice_cancel);
-        mRvContent = (RecyclerView) mContentView.findViewById(R.id.rv_content);
-        mVDivider = mContentView.findViewById(R.id.divider);
 
         //item填充对象
         mAdapter = new InnerAdapter(context, this);
@@ -127,6 +109,44 @@ public class BottomChoiceDialogHelper implements View.OnClickListener {
         mRvContent.setAdapter(mAdapter);
 
         mTvCancel.setOnClickListener(this);
+    }
+
+    private View createContentView(Context context) {
+        LinearLayout layout = new LinearLayout(context);
+        layout.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+        layout.setOrientation(LinearLayout.VERTICAL);
+        layout.setBackgroundColor(Color.parseColor("#f8f8f8"));
+
+        RecyclerView rv = new RecyclerView(context);
+        LinearLayout.LayoutParams rvParams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        rvParams.setMargins(0, 0, 0, 0);
+        rv.setLayoutParams(rvParams);
+
+        View divider = new View(context);
+        int dividerHeight = (int) TypedValue.applyDimension(UNIT_DP, 5, context.getResources().getDisplayMetrics());
+        divider.setBackgroundColor(context.getResources().getColor(R.color.colorAccent));
+        divider.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dividerHeight));
+
+        TextView tvCancel = new TextView(context);
+        tvCancel.setId(DEFAULT_CANCEL_TEXT_ID);
+        int tvHeight = (int) TypedValue.applyDimension(UNIT_DP, 50, context.getResources().getDisplayMetrics());
+        LinearLayout.LayoutParams tvParams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, tvHeight);
+        tvParams.setMargins(0, 0, 0, 0);
+        tvCancel.setLayoutParams(tvParams);
+        tvCancel.setGravity(Gravity.CENTER);
+        tvCancel.setTextColor(context.getResources().getColor(R.color.colorPrimaryDark));
+        tvCancel.setText("取消");
+        tvCancel.setTextSize(UNIT_SP, 18);
+
+        layout.addView(rv);
+        layout.addView(divider);
+        layout.addView(tvCancel);
+
+        mContentView = layout;
+        mRvContent = rv;
+        mTvCancel = tvCancel;
+        mVDivider = divider;
+        return layout;
     }
 
     public BottomChoiceDialogHelper setBackgroundDrawable(@DrawableRes int drawRes) {
@@ -378,6 +398,10 @@ public class BottomChoiceDialogHelper implements View.OnClickListener {
         return mTvCancel;
     }
 
+    public View getDivider() {
+        return mVDivider;
+    }
+
     /**
      * 设置item文本颜色
      *
@@ -606,6 +630,31 @@ public class BottomChoiceDialogHelper implements View.OnClickListener {
             mDialog.dismiss();
         }
     }
+
+    @Override
+    public void onClick(View v) {
+        //取消按钮
+        if (v.getId() == DEFAULT_CANCEL_TEXT_ID) {
+            if (mCancelListener != null) {
+                if (mCancelListener.onCancelClick(this, v)) {
+                    this.dismiss();
+                }
+            } else {
+                this.dismiss();
+            }
+        } else {
+            if (mItemChosenListener != null) {
+                //item项目点击事件
+                RecyclerView.ViewHolder viewHolder = mRvContent.getChildViewHolder(v);
+                int position = mRvContent.getChildAdapterPosition(v);
+                Object data = mAdapter.getItem(position);
+                if (mItemChosenListener.onBottomItemChosen(this, v, viewHolder, position, data)) {
+                    this.dismiss();
+                }
+            }
+        }
+    }
+
 
     /**
      * 取消按钮被点击时回调
