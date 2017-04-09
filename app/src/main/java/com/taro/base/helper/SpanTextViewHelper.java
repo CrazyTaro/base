@@ -8,6 +8,7 @@ import android.text.Spanned;
 import android.text.TextUtils;
 import android.text.style.AbsoluteSizeSpan;
 import android.text.style.ForegroundColorSpan;
+import android.text.style.UnderlineSpan;
 import android.widget.TextView;
 
 /**
@@ -39,6 +40,23 @@ public class SpanTextViewHelper {
             mLastTextLength = text.length();
         } else {
             mLastTextLength = 0;
+        }
+        return this;
+    }
+
+    /**
+     * 设置下划线
+     *
+     * @return
+     */
+    public SpanTextViewHelper setUnderline() {
+        if (mLastTextLength > 0) {
+            int end = mSpnBuilder.length();
+            int start = end - mLastTextLength;
+            mSpnBuilder.setSpan(new UnderlineSpan(),
+                    start,
+                    end,
+                    Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
         }
         return this;
     }
