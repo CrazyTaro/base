@@ -64,7 +64,7 @@ public class ResourceUtil {
 
     @Nullable
     public static final String getString(@StringRes int resId) {
-        if (isAppExist()) {
+        if (isAppExist() && resId != 0) {
             return mApp.getResources().getString(resId);
         } else {
             return null;
