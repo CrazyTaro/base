@@ -584,6 +584,10 @@ public class BottomChoiceDialogHelper implements View.OnClickListener {
 
     public BottomChoiceDialogHelper show() {
         if (!mDialog.isShowing()) {
+            //当数据存在时检测是否需要更新数据显示
+            if (mAdapter != null) {
+                mAdapter.checkItemIfNeedChanged();
+            }
             mDialog.show();
         }
         return this;
@@ -818,6 +822,8 @@ public class BottomChoiceDialogHelper implements View.OnClickListener {
     private static class InnerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         private float mItemTextSize = 0;
         private int mItemTextColor = 0;
+        //记录列表数据是否已经被更新过
+        private boolean mIsItemChanged = false;
 
         //最后一项item的样式
         private ItemSetting mLastItemSetting;
@@ -843,6 +849,22 @@ public class BottomChoiceDialogHelper implements View.OnClickListener {
             this.setTextColor(defaultTextColor);
         }
 
+        /**
+         * 检测列表数据是否需要更新
+         */
+        public void checkItemIfNeedChanged() {
+            if (mIsItemChanged) {
+                notifyDataSetChanged();
+            }
+        }
+
+        /**
+         * 添加设置列表项
+         *
+         * @param index   添加项的位置
+         * @param setting 设置
+         * @return
+         */
         public ItemSetting addItemSetting(int index, @NonNull ItemSetting setting) {
             if (mSettingMap == null) {
                 mSettingMap = new ArrayMap<>(100);
@@ -854,6 +876,11 @@ public class BottomChoiceDialogHelper implements View.OnClickListener {
             return mSettingMap.remove(index);
         }
 
+        /**
+         * 清除所有的设置项,当存在特殊的设置项时,需要给定相关的参数才能进行清除
+         *
+         * @param isContainsSpecify 是否包含特殊的设置项,第一项及最后一项设置
+         */
         public void clearItemSetting(boolean isContainsSpecify) {
             mSettingMap.clear();
             if (isContainsSpecify) {
@@ -862,36 +889,61 @@ public class BottomChoiceDialogHelper implements View.OnClickListener {
             }
         }
 
+        /**
+         * 设置设置项针对的列表顺序
+         *
+         * @param sequence 使用正序或者是反序进行设置
+         */
         public void setItemSettingSequence(@SettingSequence int sequence) {
             mSettingSequence = sequence;
         }
 
+        /**
+         * 设置默认的列表数据源
+         *
+         * @param strList
+         */
         public void setDefaultItemList(List<String> strList) {
-            mDatas = strList;
+            setItemList(strList);
         }
 
+        /**
+         * 设置默认的列表数据源
+         *
+         * @param strArr
+         */
         public void setDefaultItemList(String[] strArr) {
+            List<String> list = null;
             if (strArr != null) {
-                mDatas = Arrays.asList(strArr);
-            } else {
-                mDatas = null;
+                list = Arrays.asList(strArr);
             }
+            setItemList(list);
         }
 
+        /**
+         * 设置默认的列表数据源
+         *
+         * @param strRes
+         */
         public void setDefaultItemList(int[] strRes) {
+            List<String> list = null;
             if (strRes != null) {
-                List<String> list = new ArrayList<>(strRes.length);
+                list = new ArrayList<>(strRes.length);
                 for (int i = 0; i < strRes.length; i++) {
                     list.add(mContext.getResources().getString(strRes[i]));
                 }
-                mDatas = list;
-            } else {
-                mDatas = null;
             }
+            setItemList(list);
         }
 
+        /**
+         * 设置通用的列表数据源
+         *
+         * @param list
+         */
         public void setItemList(List<? extends Object> list) {
             mDatas = list;
+            mIsItemChanged = true;
         }
 
         public Object getItem(int position) {
@@ -910,10 +962,20 @@ public class BottomChoiceDialogHelper implements View.OnClickListener {
             mFirstItemSetting = setting;
         }
 
+        /**
+         * 设置列表项绑定代理的接口,通过代理可以实现自定义的布局及列表数据绑定*
+         *
+         * @param delegate
+         */
         public void setItemDelegate(OnItemDelegate delegate) {
             mItemDelegate = delegate;
         }
 
+        /**
+         * 设置统一的字体大小,当子项设置存在给定字体时,使用子项的字体大小
+         *
+         * @param textSize
+         */
         public void setTextSize(float textSize) {
             if (mItemTextSize != textSize) {
                 mItemTextSize = textSize;
@@ -924,6 +986,11 @@ public class BottomChoiceDialogHelper implements View.OnClickListener {
             }
         }
 
+        /**
+         * 设置统一的字体颜色,当子项设置存在给定的字体颜色时,使用子设置的字体颜色
+         *
+         * @param color
+         */
         public void setTextColor(@ColorInt int color) {
             if (mItemTextColor != color) {
                 mItemTextColor = color;
@@ -983,7 +1050,7 @@ public class BottomChoiceDialogHelper implements View.OnClickListener {
                         //逆序获取样式
                         setting = mSettingMap.get(getItemCount() - 1 - position);
                     }
-                    //设置样式
+                    //子项存在自定义设置,使用自定义的样式
                     if (setting != null) {
                         innerHolder.updateView(setting);
                     }
@@ -1028,11 +1095,18 @@ public class BottomChoiceDialogHelper implements View.OnClickListener {
             this.updateView();
         }
 
+        /**
+         * 设置统一的样式
+         */
         public void updateView() {
             mTvText.setTextColor(mParentTextColor);
             mTvText.setTextSize(UNIT_PX, mParentTextSize);
         }
 
+        /***
+         * 设置指定的样式
+         * @param setting
+         */
         public void updateView(@NonNull ItemSetting setting) {
             if (setting.isValidTextColor()) {
                 mTvText.setTextColor(setting.mTextColor);
